@@ -1,2 +1,1 @@
-ValoremClearCashSettledTest:test_clearCashSettled() (gas: 186)
-ValoremClearPhysicallySettledTest:test_clearPhysicallySettled() (gas: 682833)
+ValoremClearPhysicallySettledTest:test_clearPhysicallySettled() (gas: 548143)
