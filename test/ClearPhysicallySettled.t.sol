@@ -105,7 +105,7 @@ contract ValoremClearPhysicallySettledTest is BaseClearTest {
         assertEq(WETH.balanceOf(ALICE), aliceWethBalance, "Alice WETH balance before redeem");
         assertEq(USDC.balanceOf(ALICE), aliceUsdcBalance, "Alice USDC balance before redeem");
 
-        // Redeem our claim.
+        // Alice redeems her claim.
         vm.prank(ALICE);
         clearinghouse.redeem(claimId);
 
