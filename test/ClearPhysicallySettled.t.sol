@@ -76,20 +76,20 @@ contract ValoremClearPhysicallySettledTest is BaseClearTest {
         // Warp to the exercise timestamp.
         vm.warp(earliestExercise);
 
-        // Bob exercises 3 of his 4 options.
+        // Bob exercises his options.
         vm.startPrank(BOB);
         USDC.approve(address(clearinghouse), type(uint256).max);
-        clearinghouse.exercise(optionId, 3);
+        clearinghouse.exercise(optionId, 4);  // note that Bob could choose not to exercise all of his options
         vm.stopPrank();
 
         // Check balances after exercise.
-        uint256 clearinghouseWethBalance = (12 * 1e18) + _valoremFee(15 * 1e18); // (3 * 1e18) less WETH due to exercise
-        uint256 clearinghouseUsdcBalance = (3 * 2100e6) + _valoremFee(3 * 2100e6); // (3 * 2100e6) more USDC
+        uint256 clearinghouseWethBalance = (11 * 1e18) + _valoremFee(15 * 1e18); // (4 * 1e18) less WETH due to exercise
+        uint256 clearinghouseUsdcBalance = (4 * 2100e6) + _valoremFee(4 * 2100e6); // (4 * 2100e6) more USDC
 
-        assertEq(clearinghouse.balanceOf(BOB, optionId), 1, "Bob option balance after exercise");
-        assertEq(WETH.balanceOf(BOB), 1_000_000e18 + (3 * 1e18), "Bob WETH balance after exercise");
+        assertEq(clearinghouse.balanceOf(BOB, optionId), 0, "Bob option balance after exercise");
+        assertEq(WETH.balanceOf(BOB), 1_000_000e18 + (4 * 1e18), "Bob WETH balance after exercise");
         assertEq(WETH.balanceOf(address(clearinghouse)), clearinghouseWethBalance, "Clearinghouse WETH balance after write");
-        assertEq(USDC.balanceOf(BOB), 1_000_000e6 - (3 * 2100e6) - _valoremFee(3 * 2100e6), "Bob USDC balance after exercise");
+        assertEq(USDC.balanceOf(BOB), 1_000_000e6 - (4 * 2100e6) - _valoremFee(4 * 2100e6), "Bob USDC balance after exercise");
         assertEq(USDC.balanceOf(address(clearinghouse)), clearinghouseUsdcBalance, "Clearinghouse USDC balance after exercise");
 
         //////// Redeeming a claim ////////
@@ -110,19 +110,18 @@ contract ValoremClearPhysicallySettledTest is BaseClearTest {
         clearinghouse.redeem(claimId);
 
         // Check balances after redeem.
-        // Alice has (12 * 1e18) more WETH due to redeeming claim over 12 options that were not exercised,
-        // and (3 * 2100e6) more USDC from the 3 options that were exercised. (And Bob still has the final
-        // option that Alice originally wrote and transferred to him, but he let it expire.)
-        aliceWethBalance += 12 * 1e18;
-        aliceUsdcBalance += 3 * 2100e6;
-        clearinghouseWethBalance -= 12 * 1e18;
-        clearinghouseUsdcBalance -= 3 * 2100e6;
+        // Alice has (11 * 1e18) more WETH due to redeeming claim over 11 options that were not exercised,
+        // and (4 * 2100e6) more USDC from the 4 options that were exercised.
+        aliceWethBalance += 11 * 1e18;
+        aliceUsdcBalance += 4 * 2100e6;
+        clearinghouseWethBalance -= 11 * 1e18;
+        clearinghouseUsdcBalance -= 4 * 2100e6;
 
         assertEq(clearinghouse.balanceOf(ALICE, claimId), 0, "Alice claim balance after redeem");
         assertEq(WETH.balanceOf(ALICE), aliceWethBalance, "Alice WETH balance after redeem");
         assertEq(WETH.balanceOf(address(clearinghouse)), clearinghouseWethBalance, "Clearinghouse WETH balance after redeem");
         assertEq(USDC.balanceOf(ALICE), aliceUsdcBalance, "Alice USDC balance after redeem");
         assertEq(USDC.balanceOf(address(clearinghouse)), clearinghouseUsdcBalance, "Clearinghouse USDC balance after redeem");
-        assertEq(clearinghouse.balanceOf(BOB, optionId), 1, "Bob option balance after redeem");
+        assertEq(clearinghouse.balanceOf(BOB, optionId), 0, "Bob option balance after redeem");
     }
 }
